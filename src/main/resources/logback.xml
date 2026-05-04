@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- <filter class="com.snackOverFlow.config.logging.ApplicationMDCFilter"/> -->
+
+        <encoder>
+            <pattern>%d{HH:mm:ss} %highlight(%-5level) %cyan(%logger{15}) %yellow([%X{correlationId:-}]) : %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File Appender with Rolling Policy -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGGING_FILE_NAME:-logs/snackOverFlow-internal-portal.log}</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [%X{correlationId:-}] %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGGING_FILE_NAME:-logs/snackOverFlow-internal-portal}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>${LOGGING_FILE_MAX_SIZE:-100MB}</maxFileSize>
+            <maxHistory>${LOGGING_FILE_MAX_HISTORY:-30}</maxHistory>
+        </rollingPolicy>
+
+        <!-- Exclude logs tagged with MDC.engine=true -->
+        <!-- <filter class="com.snackOverFlow.config.logging.ApplicationMDCFilter"/> -->
+    </appender>
+
+    <!-- Component-Specific Loggers -->
+    <logger name="org.springframework.security" level="${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY:-DEBUG}" />
+    <logger name="com.zaxxer.hikari" level="${HIKARI_LOG_LEVEL:-DEBUG}" />
+    <logger name="org.springframework.data.elasticsearch" level="${ELASTICSEARCH_LOG_LEVEL:-DEBUG}" />
+    <logger name="liquibase" level="${LIQUIBASE_LOG_LEVEL:-DEBUG}" />
+    <logger name="org.springframework.cache" level="${CACHE_LOG_LEVEL:-DEBUG}" />
+    <logger name="org.springframework.web.multipart" level="DEBUG" />
+    <logger name="org.apache.tomcat.util.http.fileupload" level="DEBUG" />
+    <logger name="org.apache.commons.fileupload" level="DEBUG" />
+
+
+    <logger name="org.hibernate.SQL" level="${HIBERNATE_SQL_LOG_LEVEL:-DEBUG}" />
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="${HIBERNATE_BINDER_LOG_LEVEL:-DEBUG}" />
+	<!-- Engine Rolling File Appender -->
+	<appender name="ENGINE_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/snackOverFlow-engine.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGGING_FILE_NAME:-logs/snackOverFlow-engine}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>${LOGGING_FILE_MAX_SIZE:-20MB}</maxFileSize>
+            <maxHistory>${LOGGING_FILE_MAX_HISTORY:-1000}</maxHistory>
+        </rollingPolicy>
+
+        <!-- <filter class="com.snackOverFlow.config.logging.EngineMDCFilter"/> -->
+
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- Logger to use the Engine appender -->
+	<logger name="sa.elm.snackOverFlow.service.eligibilityEngine" level="DEBUG" additivity="false">
+		<appender-ref ref="ENGINE_LOG_FILE"/>
+	</logger>
+
+
+    <!-- AgencyIntegration Rolling File Appender -->
+    <appender name="AGENCY_INTEGRATION_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/snackOverFlow-agency-integration.log</file>
+
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGGING_FILE_NAME:-logs/snackOverFlow-agency-integration}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>${LOGGING_FILE_MAX_SIZE:-20MB}</maxFileSize>
+            <maxHistory>${LOGGING_FILE_MAX_HISTORY:-1000}</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+
+                <!-- <filter class="com.snackOverFlow.config.logging.AgencyIntegrationMDCFilter"/> -->
+
+    </appender>
+
+    <!-- Logger to use the agency Integration appender -->
+    <logger name="sa.elm.snackOverFlow.service.agencyIntegration" level="DEBUG" additivity="false">
+        <appender-ref ref="AGENCY_INTEGRATION_LOG_FILE"/>
+    </logger>
+
+    <!-- Hibernate SQL logs - attached to same engine appender -->
+    <logger name="org.hibernate.SQL" level="${HIBERNATE_SQL_LOG_LEVEL:-DEBUG}" additivity="true">
+        <appender-ref ref="ENGINE_LOG_FILE"/>
+        <appender-ref ref="AGENCY_INTEGRATION_LOG_FILE"/>
+    </logger>
+
+    <!-- Hibernate parameter bindings (optional) -->
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="${HIBERNATE_BINDER_LOG_LEVEL:-DEBUG}" additivity="true">
+        <appender-ref ref="ENGINE_LOG_FILE"/>
+        <appender-ref ref="AGENCY_INTEGRATION_LOG_FILE"/>
+    </logger>
+
+    <logger name="org.springframework.amqp" level="DEBUG" additivity="false">
+        <appender-ref ref="AGENCY_INTEGRATION_LOG_FILE"/>
+    </logger>
+
+    <root level="info">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

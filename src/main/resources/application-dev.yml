@@ -1,0 +1,124 @@
+server:
+    port: ${SERVER_PORT:8080}
+    servlet:
+        context-path: ${SERVER_SERVLET_CONTEXT_PATH:/api}
+
+spring:
+    application:
+        name: ${SPRING_APPLICATION_NAME:snackOverFlow}
+    banner:
+        location: classpath:start-banner.txt
+
+    ############################################################
+    # Database
+    ############################################################
+    datasource:
+        url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/snackoverflow_db}
+        username: ${SPRING_DATASOURCE_USERNAME:admin}
+        password: ${SPRING_DATASOURCE_PASSWORD:123}
+        driver-class-name: org.postgresql.Driver
+
+    ############################################################
+    # JPA
+    ############################################################
+    jpa:
+        hibernate:
+            ddl-auto: none
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                format_sql: ${SPRING_JPA_FORMAT_SQL:false}
+                show_sql: ${SPRING_JPA_SHOW_SQL:false}
+        open-in-view: false
+
+    ############################################################
+    # Liquibase
+    ############################################################
+    liquibase:
+        enabled: ${SPRING_LIQUIBASE_ENABLED:true}
+        change-log: classpath:/db/changelog/db.changelog-master.yaml
+        default-schema: snackoverflow
+        liquibase-schema: liquibase_meta
+
+    ############################################################
+    # RabbitMQ
+    ############################################################
+    rabbitmq:
+        host: ${RABBITMQ_HOST:localhost}
+        port: ${RABBITMQ_PORT:5672}
+        username: ${RABBITMQ_USERNAME:guest}
+        password: ${RABBITMQ_PASSWORD:guest}
+        virtual-host: ${RABBITMQ_VIRTUAL_HOST:/}
+        connection-timeout: 30000
+        publisher-confirm-type: correlated
+        publisher-returns: true
+        template:
+            mandatory: true
+            retry:
+                enabled: true
+                initial-interval: 1000
+                max-attempts: 3
+                multiplier: 2.0
+        listener:
+            simple:
+                acknowledge-mode: manual
+                prefetch: 10
+                retry:
+                    enabled: true
+                    initial-interval: 1000
+                    max-attempts: 3
+                    multiplier: 2.0
+
+    ############################################################
+    # Jackson
+    ############################################################
+    jackson:
+        serialization:
+            write-dates-as-timestamps: false
+        deserialization:
+            adjust-dates-to-context-time-zone: false
+
+    ############################################################
+    # File Upload
+    ############################################################
+    servlet:
+        multipart:
+            max-file-size: 5MB
+            max-request-size: 5MB
+
+############################################################
+# MinIO
+############################################################
+minio:
+    url: http://localhost:9002
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket: snackoverflow
+    max-file-size-bytes: 5242880
+
+############################################################
+# Actuator
+############################################################
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info
+    endpoint:
+        health:
+            show-details: always
+    health:
+        rabbit:
+            enabled: true
+
+############################################################
+# Scheduler
+############################################################
+# auto-cancel: runs every 60s, cancels PENDING orders older than 10 minutes
+scheduler:
+    auto-cancel:
+        fixed-delay-ms: 60000
+
+logging:
+  level:
+    com.snackOverFlow.config: INFO

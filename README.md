@@ -72,7 +72,7 @@ PUT    /api/v1/menu/{id}               # Update item
 DELETE /api/v1/menu/{id}               # Soft delete
 PATCH  /api/v1/menu/{id}/availability  # Toggle availability
 
-# Order Management  
+# Order Management
 POST   /api/v1/orders                  # Place order
 GET    /api/v1/orders/{id}             # Get order details
 GET    /api/v1/orders                  # List orders (filtered)
@@ -87,8 +87,8 @@ POST   /api/v1/customers               # Register customer
 ### RabbitMQ Configuration
 
 ### Exchange & Queue Setup
-**Name:** `orders.exchange`  
-**Durable:** true  
+**Name:** `orders.exchange`
+**Durable:** true
 **Queues:**
 ```
 orders.placed.queue       # Routing key: order.placed
@@ -138,4 +138,4 @@ orders.notification.queue # Routing key: order.#
 
 Remember, we value **quality over quantity**. A well-designed **partial** solution with clear documentation of what remains is better than a complete but **poorly** architected system.
 
-### Good Luck! 🚀
+```

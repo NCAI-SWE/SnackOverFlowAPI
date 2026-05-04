@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: changelog-sof-v1.yaml
+      relativeToChangelogFile: true

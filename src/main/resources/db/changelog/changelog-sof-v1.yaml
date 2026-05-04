@@ -1,0 +1,77 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 001-create-schema
+      author: snackoverflow
+      comment: "Create snackoverflow application schema"
+      changes:
+        - sqlFile:
+            path: scripts/001-create-schema.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+
+  - changeSet:
+      id: 002-create-customers
+      author: snackoverflow
+      comment: "Create customers table"
+      changes:
+        - sqlFile:
+            path: scripts/002-create-customers.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - sql: DROP TABLE IF EXISTS snackoverflow.customers CASCADE;
+
+  - changeSet:
+      id: 003-create-menu-items
+      author: snackoverflow
+      comment: "Create menu_items table"
+      changes:
+        - sqlFile:
+            path: scripts/003-create-menu-items.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - sql: DROP TABLE IF EXISTS snackoverflow.menu_items CASCADE;
+
+  - changeSet:
+      id: 004-create-orders
+      author: snackoverflow
+      comment: "Create orders table"
+      changes:
+        - sqlFile:
+            path: scripts/004-create-orders.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - sql: DROP TABLE IF EXISTS snackoverflow.orders CASCADE;
+
+  - changeSet:
+      id: 005-create-order-items
+      author: snackoverflow
+      comment: "Create order_items table"
+      changes:
+        - sqlFile:
+            path: scripts/005-create-order-items.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - sql: DROP TABLE IF EXISTS snackoverflow.order_items CASCADE;
+
+  - changeSet:
+      id: 006-create-processed-messages
+      author: snackoverflow
+      comment: "Create processed_messages table for RabbitMQ idempotency"
+      changes:
+        - sqlFile:
+            path: scripts/006-create-processed-messages.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - sql: DROP TABLE IF EXISTS snackoverflow.processed_messages CASCADE;
