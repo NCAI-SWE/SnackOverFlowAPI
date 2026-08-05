@@ -1,4 +1,4 @@
-## SnackOverFlow
+## SnackOverFlow API
 <img src="./SnackOverFlow.png" alt="SnackOverFlow" width="200" align="right">
 
 ### 🎯 Objective
