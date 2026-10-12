@@ -127,14 +127,66 @@ orders.notification.queue # Routing key: order.#
 - Max file size: 5MB
 - Supported formats: JPEG, PNG, SVG
 
+### ☸️ Kubernetes Deployment
+In addition to `docker-compose`, the whole system must run on a local Kubernetes cluster, with the API running as **2 replicas**.
+
+#### Cluster Setup
+- Preferbly use [kind](https://kind.sigs.k8s.io/) and commit its config as `k8s/kind-config.yaml`.
+- Provide one command to bring the system up and one to tear it down. On a machine with only Docker, kind and kubectl installed, `make k8s-up` must work with no manual steps:
+
+```bash
+make k8s-up    # create cluster, build & load image, apply manifests, wait until ready
+make k8s-down  # delete the cluster
+```
+
+- Build the API image locally and load it with `kind load docker-image`. Do not push it to a public registry.
+- Tag the image with a fixed version (e.g. `snackoverflow-api:1.0.0`), never `latest`.
+- Expose the API to the host through a NodePort with `extraPortMappings`, or an Ingress/Gateway, bound to `127.0.0.1`. Document the URL.
+
+#### Manifests
+All manifests live in `k8s/` and are applied with a single `kubectl apply -k k8s/` (Kustomize), into the `snackoverflow` namespace.
+
+| Resource | Requirement |
+|----------|-------------|
+| API Deployment | `replicas: 2`, rolling update |
+| API Service | `ClusterIP`, plus the host exposure above |
+| ConfigMap | Non-sensitive configuration (URLs, exchange/queue names, limits) |
+| Secret | Credentials, generated with a Kustomize `secretGenerator` |
+| PostgreSQL, RabbitMQ, MinIO | One `StatefulSet` with a `PersistentVolumeClaim` each. A single replica is fine; high availability is not expected |
+
+- Use official upstream images with pinned tags.
+- Do not commit real credentials. Generate the Secret from a gitignored env file, and commit an example (e.g. `k8s/.env.example`).
+- Change the default MinIO and RabbitMQ credentials.
+
+#### API Deployment Requirements
+- **Probes:** separate liveness and readiness probes. Liveness must not depend on PostgreSQL, RabbitMQ or MinIO.
+- **Resources:** CPU and memory requests and limits, with the JVM heap sized to the container's memory.
+- **Security context:** run as non-root, drop all capabilities, and disallow privilege escalation.
+
+#### Running with 2 Replicas
+The business rules must hold while both replicas are serving traffic:
+- The **Concurrent Order Limit** is never exceeded by simultaneous requests hitting different replicas.
+- **Auto-cancellation** handles each order once, not once per replica.
+- Consumers on both replicas share the queues without processing a message twice.
+- If you implement the caching bonus, one replica does not serve data the other has already changed.
+
+Explain in your documentation how your design handles each of these.
+
+#### How We Will Verify
+- Run `make k8s-up` on a clean machine and wait for all pods to become ready.
+- Run your API requests collection against the exposed URL.
+- Delete an API pod while sending requests, then roll out a new image version, and check that the system keeps serving requests.
+
 ### ✨ Bonus
 - Add caching layer when listing menu items
+- Package the API manifests as a Helm chart
 
 ### 📝 Submission
 1. Push your code to a GitHub **private** repository, and assign this account as a collaborator. To assign, go to repository's settings > Collaborators > Add people and search for **NCAI-SWE**.
 2. Provide a project documentation, and include any assumptions made.
 3. Ensure `docker-compose up` starts the entire system.
 4. Provide API requests collection.
+5. Ensure your Kubernetes script or `make` target starts the entire system on kind.
 
 Remember, we value **quality over quantity**. A well-designed **partial** solution with clear documentation of what remains is better than a complete but **poorly** architected system.
 
