@@ -160,7 +160,7 @@ All manifests live in `k8s/` and are applied with a single `kubectl apply -k k8s
 
 #### API Deployment Requirements
 - **Probes:** separate liveness and readiness probes. Liveness must not depend on PostgreSQL, RabbitMQ or MinIO.
-- **Resources:** CPU and memory requests and limits, with the JVM heap sized to the container's memory.
+- **Resources:** CPU and memory requests and limits.
 - **Security context:** run as non-root, drop all capabilities, and disallow privilege escalation.
 
 #### Running with 2 Replicas
