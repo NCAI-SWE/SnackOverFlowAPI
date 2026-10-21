@@ -62,6 +62,7 @@ Every state change must publish a message to RabbitMQ for async processing:
 |  Message Broker  |         RabbitMQ        |
 |  Object Storage  |          MinIO          |
 | Containerization | Docker & Docker Compose |
+|  Orchestration   | Kubernetes using `kind` |
 
 ### API Endpoints
 ```yaml
