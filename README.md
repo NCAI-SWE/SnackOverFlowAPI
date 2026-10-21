@@ -57,6 +57,7 @@ Every state change must publish a message to RabbitMQ for async processing:
 |------------------|-------------------------|
 |     Language     |           Java          |
 |     Framework    |        Spring Boot      |
+|     Build Tool   |          Gradle         |
 |     Database     |        PostgreSQL       |
 |  Message Broker  |         RabbitMQ        |
 |  Object Storage  |          MinIO          |
